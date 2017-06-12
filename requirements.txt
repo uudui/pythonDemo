@@ -1,0 +1,15 @@
+tornado
+redis
+shortuuid
+tornado-redis
+celery
+git+https://github.com/mher/tornado-celery.git
+requests
+pyCrypto
+pycurl
+sqlalchemy
+git+https://github.com/m32/sqlalchemy-tds.git
+pypyodbc
+redis-py-cluster
+bitarray
+git+https://github.com/denisenkom/pytds.git

@@ -1,0 +1,166 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no, width=device-width">
+    <title>司机派单查询</title>
+    <link rel="stylesheet" href="http://cache.amap.com/lbs/static/main1119.css"/>
+    <script src="http://cache.amap.com/lbs/static/es5.min.js"></script>
+    <script src="http://webapi.amap.com/maps?v=1.3&key=0d8f83948178d97cc4a12ef92898b97b"></script>
+    <script type="text/javascript" src="http://cache.amap.com/lbs/static/addToolbar.js"></script>
+    <script type="text/javascript" src="http://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+    <style>
+        .marker-driver {
+            width: 20px;
+            height: 20px;
+            text-align: center;
+            padding: 2px;
+            font-size: 12px;
+            background-color: green;
+            border-radius: 50%;
+            color: #fff;
+        }
+
+        .marker-driver.query {
+            background-color: red;
+        }
+
+        #myPageTop label {
+            font-weight: bold;
+        }
+
+        #myPageTop textarea {
+            display: table-column;
+            position: relative;
+        }
+    </style>
+</head>
+<body>
+<div id="container"></div>
+<div id="myPageTop">
+    <form id="position-form" method="post" action="/query">
+        <table>
+            <tbody>
+            <tr>
+                <td colspan="3">
+                    <label>查询到的司机：</label>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="3">
+                    <textarea rows="6" cols="60" id="drivers"
+                              placeholder='如：[{"Ucode":"HAN5078","CityId":320800,"Lat":33.58902,"Lng":119.071465,"distance":0.21155637502670288,"weight":0.0}]'></textarea>
+                </td>
+            </tr>
+
+            <tr>
+                <td>
+                    <label>订单坐标：</label>
+                </td>
+                <td class="column2">
+                    <label>司机坐标：</label>
+                </td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>
+                    <input type="text" placeholder="如：119.07, 33.58" id="order">
+                </td>
+                <td class="column2">
+                    <input type="text" placeholder="如：119.07, 33.58" id="driver">
+                </td>
+                <td>
+                    <button type="submit">查询</button>
+                </td>
+            </tr>
+            </tbody>
+
+
+        </table>
+    </form>
+
+</div>
+<script type="text/javascript">
+    var map = new AMap.Map('container', {
+        resizeEnable: true,
+        zoom: 13,
+        center: [120.5613, 30.65488]
+    });
+
+
+    var order = new AMap.Marker({
+        map: map,
+        position: map.getCenter()
+    });
+    order.setTitle('订单位置');
+
+    var drivers = [];
+    var driverMarkers = [];
+
+
+    var circle_3 = new AMap.Circle({
+        center: map.getCenter(),// 圆心位置
+        radius: 3000, //3公里
+        strokeColor: "#F33", //线颜色
+        strokeOpacity: 1, //线透明度
+        strokeWeight: 1, //线粗细度
+        fillColor: "#ee2200", //填充颜色
+        fillOpacity: 0.35//填充透明度
+    });
+    circle_3.setMap(map);
+
+    var circle_5 = new AMap.Circle({
+        center: map.getCenter(),// 圆心位置
+        radius: 5000, //3公里
+        strokeColor: "#3366FF", //线颜色
+        strokeOpacity: 1, //线透明度
+        strokeWeight: 1, //线粗细度
+        fillColor: "#3366FF", //填充颜色
+        fillOpacity: 0.35//填充透明度
+    });
+    circle_5.setMap(map);
+
+    $("#position-form").on("submit", function (e) {
+        e.preventDefault();
+        if ($("#order").val()) {
+            var orderPosition = $("#order").val().split(',');
+            map.setCenter(orderPosition);
+            order.setPosition(orderPosition);
+            circle_3.setCenter(orderPosition);
+            circle_5.setCenter(orderPosition);
+            for (var i = 0; i < driverMarkers.length; i++) {
+                var marker = driverMarkers[i];
+                if (marker) {
+                    marker.setMap(null);
+                    marker = null;
+                }
+            }
+        }
+
+        if ($("#drivers").val() != null) {
+            drivers = eval($("#drivers").val());
+            for (var i = 0; i < drivers.length; i++) {
+                var driver = drivers[i];
+                driverMarkers[i] = new AMap.Marker({
+                    map: map,
+                    position: [driver.Lng, driver.Lat],
+                    content: '<span class="marker-driver">D' + (i + 1) + '</span>'
+                });
+            }
+        }
+
+        if ($("#driver").val()) {
+            var driverPosition = $("#driver").val().split(',');
+            new AMap.Marker({
+                map: map,
+                position: driverPosition,
+                content: '<span class="marker-driver query">D' + (i + 1) + '</span>'
+            });
+        }
+    });
+
+
+</script>
+</body>
+</html>
